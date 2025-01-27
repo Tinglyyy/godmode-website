@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godmode</title>
+</head>
+<body>
+
+    <form id="ipform">
+        <input type="text" id="ip" name="ip"><br><br>
+        <input type="button" value="Set IP" name="submit">
+    </form>
+
+    <form id="cmdform">
+        <input type="text" id="cmd" name="cmd"><br><br>
+        <input type="button" value="Send Command" name="submit">
+    </form>
+    
+    <script>
+
+        let ip = getCookie("ip");
+
+        let ipform = document.getElementById("ipform");
+        let cmdform = document.getElementById("cmdform");
+
+        ipform.elements['submit'].addEventListener("click", setIp);
+        cmdform.elements['submit'].addEventListener("click", postCommand);
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        
+        function setIp() {
+            // Get IP value from ip field
+            
+            this.ip = ipform.elements['ip'].value;
+
+            ipform.elements['ip'].value = "";
+
+            document.cookie = "ip=" + this.ip;
+        }
+
+
+        function postCommand() {
+            post("console\n" 
+            + document.getElementById("cmdform").elements['cmd'].value 
+            + "\n")
+        }
+
+        // Send stringified JSON to server
+        function post(data) {
+
+            fetch('http://' + ip, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain',
+                },
+                body: data
+            })
+            .then(response => response.text()) 
+            .then(data => {
+                console.log('Executed:', data);
+                console.log('Response:' + response);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>
